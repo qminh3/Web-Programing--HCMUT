@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý Local Storage & IndexedDB</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .container {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        max-width: 800px;
+        margin: auto;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      input {
+        padding: 10px;
+        margin: 8px;
+        width: 45%;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+
+      button {
+        padding: 10px 15px;
+        margin: 8px 4px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        color: white;
+        font-weight: bold;
+      }
+
+      .btn-green {
+        background-color: #28a745;
+      }
+      .btn-green:hover {
+        background-color: #218838;
+      }
+
+      .btn-red {
+        background-color: #dc3545;
+      }
+      .btn-red:hover {
+        background-color: #c82333;
+      }
+
+      .btn-yellow {
+        background-color: #ffc107;
+        color: black;
+      }
+      .btn-yellow:hover {
+        background-color: #e0a800;
+      }
+
+      table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Quản lý Local Storage & IndexedDB</h2>
+
+      <input type="text" id="keyInput" placeholder="Tên dữ liệu ( key)" />
+      <input type="text" id="valueInput" placeholder="Giá trị ( value)" />
+      <br />
+
+      <button class="btn-green" onclick="addToLocal()">
+        Thêm/Sửa Local Storage
+      </button>
+      <button class="btn-red" onclick="deleteFromLocal()">
+        Xoá Local Storage
+      </button>
+
+      <button class="btn-green" onclick="addToDB()">Thêm/Sửa IndexedDB</button>
+      <button class="btn-red" onclick="deleteFromDB()">Xoá IndexedDB</button>
+
+      <h3>Dữ liệu Local Storage</h3>
+      <div id="localTable"></div>
+
+      <h3>Dữ liệu IndexedDB</h3>
+      <div id="dbTable"></div>
+    </div>
+
+    <script>
+      const keyInput = document.getElementById("keyInput");
+      const valueInput = document.getElementById("valueInput");
+
+      // LOCAL STORAGE
+
+      function addToLocal() {
+        const key = keyInput.value.trim();
+        const value = valueInput.value.trim();
+
+        if (!key || !value) {
+          alert("Vui lòng nhập đầy đủ tên và giá trị!");
+          return;
+        }
+
+        localStorage.setItem("col_" + key, value);
+        keyInput.value = "";
+        valueInput.value = "";
+        renderLocal();
+      }
+
+      function deleteFromLocal() {
+        const key = keyInput.value.trim();
+        if (!key) {
+          alert("Vui lòng nhập tên cần xoá!");
+          return;
+        }
+
+        localStorage.removeItem("app_" + key);
+        renderLocal();
+      }
+
+      function deleteSpecificLocal(fullKey) {
+        localStorage.removeItem(fullKey);
+        renderLocal();
+      }
+
+      function renderLocal() {
+        let html = `<table><tr><th>Tên</th><th>Giá trị</th><th>Hành động</th></tr>`;
+
+        for (let i = 0; i < localStorage.length; i++) {
+          let fullKey = localStorage.key(i);
+          if (!fullKey.startsWith("col_")) continue;
+
+          let rawValue = localStorage.getItem(fullKey);
+          let displayValue = rawValue;
+
+          try {
+            const parsed = JSON.parse(rawValue);
+            displayValue = JSON.stringify(parsed, null, 2);
+          } catch (e) {}
+
+          html += `<tr>
+          <td>${fullKey.replace("col_", "")}</td>
+          <td><pre style="font-family: inherit; font-size: 16px;">${displayValue}</pre></td>
+          <td>
+            <button class="btn-yellow" onclick='loadToForm(${JSON.stringify(
+              fullKey
+            )}, ${JSON.stringify(rawValue)})'>Sửa</button>
+            <button class="btn-red" onclick='deleteSpecificLocal(${JSON.stringify(
+              fullKey
+            )})'>Xoá</button>
+          </td>
+        </tr>`;
+        }
+
+        html += `</table>`;
+        document.getElementById("localTable").innerHTML = html;
+      }
+
+      // INDEXEDDB
+
+      let db;
+      const dbRequest = indexedDB.open("MyDB", 1);
+
+      dbRequest.onupgradeneeded = (e) => {
+        db = e.target.result;
+        if (!db.objectStoreNames.contains("data")) {
+          db.createObjectStore("data", { keyPath: "key" });
+        }
+      };
+
+      dbRequest.onsuccess = (e) => {
+        db = e.target.result;
+        renderDB();
+      };
+
+      function addToDB() {
+        const key = keyInput.value.trim();
+        const value = valueInput.value.trim();
+        if (!key || !value) {
+          alert("Vui lòng nhập đầy đủ!");
+          return;
+        }
+
+        const tx = db.transaction("data", "readwrite");
+        const store = tx.objectStore("data");
+        store.put({ key, value });
+        tx.oncomplete = () => {
+          keyInput.value = "";
+          valueInput.value = "";
+          renderDB();
+        };
+      }
+
+      function deleteFromDB() {
+        const key = keyInput.value.trim();
+        if (!key) {
+          alert("Nhập tên cần xoá!");
+          return;
+        }
+
+        const tx = db.transaction("data", "readwrite");
+        const store = tx.objectStore("data");
+        store.delete(key);
+        tx.oncomplete = () => renderDB();
+      }
+
+      function deleteFromDBByKey(key) {
+        const tx = db.transaction("data", "readwrite");
+        const store = tx.objectStore("data");
+        store.delete(key);
+        tx.oncomplete = () => renderDB();
+      }
+
+      function renderDB() {
+        const tx = db.transaction("data", "readonly");
+        const store = tx.objectStore("data");
+        const req = store.getAll();
+        req.onsuccess = () => {
+          let html = `<table><tr><th>Tên</th><th>Giá trị</th><th>Hành động</th></tr>`;
+          req.result.forEach((item) => {
+            let displayValue = item.value;
+            try {
+              const parsed = JSON.parse(item.value);
+              displayValue = JSON.stringify(parsed, null, 2);
+            } catch (e) {}
+
+            html += `<tr>
+            <td>${item.key}</td>
+            <td><pre style="font-family: inherit; font-size: 16px;">${displayValue}</pre></td>
+            <td>
+              <button class="btn-yellow" onclick='loadToForm(${JSON.stringify(
+                item.key
+              )}, ${JSON.stringify(item.value)})'>Sửa</button>
+              <button class="btn-red" onclick='deleteFromDBByKey(${JSON.stringify(
+                item.key
+              )})'>Xoá</button>
+            </td>
+          </tr>`;
+          });
+          html += `</table>`;
+          document.getElementById("dbTable").innerHTML = html;
+        };
+      }
+
+      // ==============================
+      function loadToForm(key, value) {
+        keyInput.value = key.replace(/^app_/, "");
+        valueInput.value = value;
+      }
+
+      window.onload = () => {
+        renderLocal();
+      };
+    </script>
+  </body>
+</html>

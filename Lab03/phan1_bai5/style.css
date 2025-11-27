@@ -1,0 +1,115 @@
+:root {
+  --accent: #22c55e;
+  --danger: #ef4444;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  color: #e5e7eb;
+  min-height: 100vh;
+}
+.container {
+  max-width: 760px;
+  margin: 30px auto;
+  padding: 0 15px;
+}
+.card {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.header {
+  padding: 20px 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--accent);
+}
+form.add {
+  display: flex;
+  gap: 10px;
+  padding: 20px 24px;
+  color: #000000;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+}
+input[type="text"] {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #a1a4a9;
+  outline: none;
+  color: #000000;
+}
+input[type="text"]::placeholder {
+  color: #000000;
+}
+button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: var(--accent);
+  color: #051b0c;
+  font-weight: 700;
+  cursor: pointer;
+}
+button:hover {
+  background: #16a34a;
+}
+ul.tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li.task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+}
+.task-name {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.idx {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: #000000;
+  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.task-text {
+  word-break: break-word;
+  color: black;
+  font-size: larger;
+}
+a.delete {
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--danger);
+  color: #ffffff;
+}
+a.delete:hover {
+  background: #2a0f0f;
+}
+.empty {
+  padding: 24px;
+  text-align: center;
+  color: #94a3b8;
+}

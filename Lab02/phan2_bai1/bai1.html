@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phần 2 Bài 1</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f8f9fa;
+        min-height: 100vh;
+        padding: 20px;
+      }
+      :root {
+        --ring: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+      }
+
+      .todo-card {
+        max-width: 720px;
+      }
+      .completed .todo-text {
+        text-decoration: line-through;
+        opacity: 0.6;
+      }
+      .list-group-item {
+        user-select: none;
+      }
+      .btn:focus-visible {
+        box-shadow: var(--ring);
+      }
+      .empty-state {
+        text-align: center;
+        color: #6c757d;
+        margin-top: 20px;
+      }
+
+      .stats {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+      }
+      .stat-item {
+        text-align: center;
+      }
+      .stat-number {
+        font-weight: bold;
+        font-size: 24px;
+      }
+    </style>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <main class="container py-5 d-flex justify-content-center">
+      <div class="card border-2 w-100 todo-card">
+        <div class="card-body">
+          <h1 class="h4 mb-3">To‑Do List Manager</h1>
+
+          <div class="input-group mb-3">
+            <input
+              id="todo-input"
+              type="text"
+              class="form-control"
+              placeholder="Nhập công việc và nhấn Enter hoặc nút Thêm"
+              aria-label="Nội dung công việc"
+            />
+            <button id="add-btn" class="btn btn-primary" type="button">
+              Thêm
+            </button>
+          </div>
+          <div class="card-body">
+            <ul id="todo-list" class="list-group"></ul>
+            <div id="emptyState" class="empty-state">
+              <p>Chưa có công việc nào.</p>
+            </div>
+            <div class="stats">
+              <div class="stat-item">
+                <div class="stat-number" id="totalTasks">0</div>
+                <div class="stat-label">Tổng số</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" id="completedTasks">0</div>
+                <div class="stat-label">Hoàn thành</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" id="pendingTasks">0</div>
+                <div class="stat-label">Chưa xong</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý Cookie</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f0f4f8;
+        min-height: 100vh;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+
+        max-width: 700px;
+        width: 100%;
+      }
+
+      h2 {
+        color: #333;
+        margin-bottom: 25px;
+        text-align: center;
+        font-size: 24px;
+      }
+
+      .form-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      input {
+        padding: 12px 15px;
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-block;
+      }
+
+      .btn-add {
+        background: #667eea;
+        color: white;
+        width: 100%;
+      }
+
+      .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-edit {
+        background: #ffc107;
+        color: #333;
+        padding: 8px 15px;
+        font-size: 13px;
+        margin-right: 5px;
+      }
+
+      .btn-edit:hover {
+        background: #ffb300;
+      }
+
+      .btn-delete {
+        background: #f44336;
+        color: white;
+        padding: 8px 15px;
+        font-size: 13px;
+      }
+
+      .btn-delete:hover {
+        background: #d32f2f;
+      }
+
+      #cookieTable {
+        margin-top: 30px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      th {
+        background: #f5f5f5;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #555;
+        font-size: 14px;
+      }
+
+      td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #666;
+        font-size: 14px;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tr:hover {
+        background: #fafafa;
+      }
+
+      p {
+        text-align: center;
+        color: #999;
+        padding: 20px;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Quản lý Cookie</h2>
+
+      <div class="form-group">
+        <input type="text" id="key" placeholder="Tên cookie" />
+        <input type="text" id="value" placeholder="Giá trị cookie" />
+        <input type="number" id="expire" placeholder="Thời gian (ngày)" />
+        <input type="text" id="path" placeholder="Path (mặc định /)" />
+        <input type="text" id="secure" placeholder="Secure (nhập 'secure')" />
+      </div>
+
+      <button class="btn-add" onclick="addOrUpdateCookie()">
+        Thêm / Cập nhật Cookie
+      </button>
+
+      <div id="cookieTable"></div>
+    </div>
+
+    <script>
+      function addOrUpdateCookie() {
+        let key = document.getElementById("key").value.trim();
+        let value = document.getElementById("value").value.trim();
+        let expire = document.getElementById("expire").value.trim();
+        let path = document.getElementById("path").value.trim();
+        let secure = document.getElementById("secure").value.trim();
+
+        if (!key || !value) {
+          alert("Vui lòng nhập đủ tên và giá trị cookie.");
+          return;
+        }
+
+        let cookieStr = `${encodeURIComponent(key)}=${encodeURIComponent(
+          value
+        )}`;
+
+        if (expire) {
+          const d = new Date();
+          d.setTime(d.getTime() + expire * 24 * 60 * 60 * 1000);
+          cookieStr += `; expires=${d.toUTCString()}`;
+        }
+
+        cookieStr += `; path=${path || "/"}`;
+
+        if (secure.toLowerCase() === "secure") {
+          cookieStr += "; secure";
+        }
+
+        document.cookie = cookieStr;
+
+        // Reset
+        document.getElementById("key").value = "";
+        document.getElementById("value").value = "";
+        document.getElementById("expire").value = "";
+        document.getElementById("path").value = "";
+        document.getElementById("secure").value = "";
+
+        renderCookieTable();
+      }
+
+      function editCookie(key, value) {
+        document.getElementById("key").value = decodeURIComponent(key);
+        document.getElementById("value").value = decodeURIComponent(value);
+      }
+
+      function deleteCookie(key) {
+        document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        renderCookieTable();
+      }
+
+      function renderCookieTable() {
+        const cookieStr = document.cookie;
+
+        const cookies = cookieStr ? cookieStr.split("; ") : [];
+        const container = document.getElementById("cookieTable");
+
+        if (
+          cookies.length === 0 ||
+          (cookies.length === 1 && cookies[0] === "")
+        ) {
+          container.innerHTML = "<p>Chưa có cookie nào</p>";
+          return;
+        }
+
+        let table =
+          "<table><tr><th>Tên</th><th>Giá trị</th><th>Hành động</th></tr>";
+        cookies.forEach((item) => {
+          const [key, value] = item.split("=");
+          table += `<tr>
+                    <td>${decodeURIComponent(key)}</td>
+                    <td>${decodeURIComponent(value)}</td>
+                    <td>
+                      <button class="btn-edit" onclick="editCookie('${key}', '${value}')">Sửa</button>
+                      <button class="btn-delete" onclick="deleteCookie('${key}')">Xoá</button>
+                    </td>
+                  </tr>`;
+        });
+        table += "</table>";
+        container.innerHTML = table;
+      }
+
+      window.onload = renderCookieTable;
+    </script>
+  </body>
+</html>
